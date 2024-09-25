@@ -1,0 +1,664 @@
+\documentclass{manual}
+
+\title{User-Manual of the MacaulayLab Toolbox}
+\author{Christof Vermeersch}
+\date{\today}
+
+\begin{document}
+
+    \maketitle
+
+    \vfill
+
+    \paragraph*{Abstract} 
+        
+        This document contains the user-manual of the \maclab\space toolbox (version \texttt{1.0}). 
+        Via several examples, the user is guided through the available functions of the software.
+        The user-manual explains how to solve multivariate polynomial systems and rectangular multiparameter eigenvalue problems.
+
+    \paragraph*{Quick start}
+
+        For those users that are not interested in the full user-manual of \maclab, but just want to solve problems as soon as possible, I recommend jumping to~\cref{sec:manual:quickstart} for a minimal introduction to the software.
+        This part of the text should provide you with all the necessary information (and nothing more) to solve your problem.
+
+    \newpage
+  
+    \tableofcontents
+
+    \newpage
+
+    \section{Getting started}
+        \label{sec:manual:start}
+
+        \maclab\space is a \matlab\space toolbox that features algorithms to solve multivariate polynomial systems and rectangular multiparameter eigenvalue problems. 
+        Before using \maclab, you need to download the zip archive of the toolbox from the website \url{www.macaulaylab.net} and unzip \maclab\space to any directory. 
+        You could also clone the latest version of the repository on Github. 
+        The repository is intended for developers and collaborators. 
+        It also contains additional test files, beta versions of the toolbox, and previous releases.
+        This user-manual is based on version \texttt{1.0} of the software. 
+        You can check the current version of \maclab\space that you use via \function{information(\textcolor{string}{"version"})}.
+
+        \subsection{Installation}
+
+            Afterward unzipping \maclab\space to a directory (or cloning the repository), you can browse to that location in \matlab\space and add the path.
+
+            \begin{code}
+                It is easy to add \maclab\space to your path:
+                \begin{codeblock}
+                >> addpath(genpath(pwd)); \\
+                >> savepath;
+                \end{codeblock}
+            \end{code}
+
+        \subsection{Help and documentation}
+
+            The different functions of \maclab\space are well-documented. 
+            Using the function \function{help \textcolor{string}{function}} in the command line displays more information about the functionality and interface of that function.
+
+            \begin{code}
+               The documentation of the \function{nbmonomials} function:
+                \begin{codeblock}
+                    >> help \textcolor{string}{nbmonomials} \\ 
+                    nbmonomials \tab   Number of monomials. \\
+                    \tab s = nbmonomials(d,n) returns the number of monomials in \\
+                    \tab the monomial basis for n variables and maximum total \\
+                    \tab degree d. \\ \phantom{-} \\
+                    \tab s = nbmonomials(...,blocksize) takes into account the \\
+                    \tab blocksize. \\ \phantom{-} \\                 
+                    \tab See also \underline{\textcolor{blue}{monomials}}.
+                \end{codeblock}
+            \end{code}
+
+        \subsection{Quick start}
+            \label{sec:manual:quickstart}
+
+            The easiest way to represent a system of multivariate polynomials is by considering a matrix for every polynomial of the system, where the first column corresponds to the coefficients of the polynomials and the remaining columns represent the powers of the variables in the corresponding monomials.
+            These matrices are combined in a cell array and given to the \function{systemstruct} constructor.
+            %
+            \begin{code}
+                We start by constructing a system of two bivariate polynomial equations.
+                %
+                \begin{codeblock}
+                    >> p1 = {[2 2 0; -3 0 1; 1 0 0]}; \\
+                    >> p2 = {[1 2 0; 1 0 2; 16 0 0]}; \\
+                    >> eqs = \string{p1, p2\string}; \\
+                    >> problem = systemstruct(eqs);
+                \end{codeblock}
+            \end{code}
+            %
+            Similarly, a rectangular multiparameter eigenvalue problem can be represented by a cell array that contains all its coefficient matrices and a matrix that describes the monomial that belongs to each coefficient matrix.
+            This cell array and matrix are given to the \function{mepstruct} constructor.
+            %
+            \begin{code}
+                Similarly, we can construct a linear two-parameter eigenvalue problem.
+                Contrary to \function{systemstruct}, \function{mepstruct} requires information about the support.
+                %
+                \begin{codeblock}
+                    >> A00 = randn(4,3); A10 = randn(4,3); A01 = randn(4,3); \\
+                    >> mat = \string{A00, A10, A01\string}; \\
+                    >> supp = {[0 0; 1 0; 0 1]}; \\
+                    >> problem = mepstruct(mat,supp);
+                \end{codeblock}
+            \end{code}
+            %
+            Solving the problem requires only one additional line of code.
+            %
+            \begin{code}
+                Given the problem, it is possible to obtain its solutions without any additional information. 
+                The solutions are given in a \function{solutionstruct}.
+                %
+                \begin{codeblock}
+                    >> solutions = macaulaylab(problem);
+                \end{codeblock}
+            \end{code}
+            %
+            The solutions are given in a solution stucture. 
+            If you want to use the numerical values of the solutions, you can access them easily via \function{num(solutions)}.
+            %
+            \begin{code}
+                You access the numerical values inside a \function{solutionstruct} via \function{num}:
+                \begin{codeblock}
+                    >> values = num(solutions) \\ \phantom{-} \\
+                    values = \\ \phantom{-} \\
+                    \tab 2.2876 + 0.0000i \tabdash 14.0549 + 0.0000i \\
+                    \tab 2.7729 + 4.1445i \tab 1.5091 - 1.9992i \\
+                    \tab 2.7729 - 4.1445i \tab 1.5091 + 1.9992i \\
+                    \tab 1.0350 - 0.8553i \tabdash  -3.1730 - 1.5772i \\
+                    \tab 1.0350 + 0.8553i \tabdash  -3.1730 + 1.5772i \\
+                    \tab 0.5146 + 0.0000i \tab 0.2825 + 0.0000i 
+                \end{codeblock}
+            \end{code}
+
+        \subsection{Tests to check all functionality}
+
+            The repository of \maclab\space contains a large set of unit tests to check the different functions. 
+            This allows the user to change the code and experiment with the different functions, but at all times the user can check whether everything still works. 
+            You can find the test suite in the folder \texttt{\color{string}Test} (only for those people who downloaded the development version of the toolbox).
+            In order to run all the tests, simply use \matlab's function \function{runtests}.
+
+            \begin{code}
+                After moving to the correct folder, you can run all the tests:
+                %
+                \begin{codeblock}
+                    >> cd \textcolor{string}{Test/} \\
+                    >> results = runtests(pwd,\textcolor{string}{"IncludeSubfolders"},true);
+                \end{codeblock}
+            \end{code}
+            
+    \section{Representation of a problem}
+        \label{sec:manual:representation}
+
+        In order to keep the toolbox user-friendly, describing a problem is kept very simple.
+        \maclab\space revolves around two different types of problems: multivariate polynomial systems and rectangular multiparameter eigenvalue problems. 
+        Both problem types are internally represented by the same class \function{problemstruct}: all necessary information is stored in the cell arrays \function{coef} and \function{supp}, where each cell of \function{coef} and \function{supp} contains the coefficients/coefficient matrices and support of one polynomial (matrix) equation, respectively.
+        Although it is possible to submit the problem directly in its internal representation, the sub-classes \function{systemstruct} and \function{mepstruct} provide constructors to set-up the specific problems more easily (\cref{fig:manual:representation}).
+
+        \begin{figure}
+            \centering
+            \input{Figures/datastructures.tikz}
+            \caption{Representation of a system of multivariate polynomial equations or rectangular multiparameter eigenvalue problem in \maclab. Both problem types are internally represented by the same \function{problemstruct}: all necessary information is stored in the cells \function{coef} and \function{supp}. The sub-classes \function{systemstruct} and \function{mepstruct} provide constructors to set-up the problems more easily, but it is also possible to submit the problem directly in the internal representation.}
+            \label{fig:manual:representation}
+        \end{figure}
+
+        This toolbox works perfectly with the database of test problems that can be found at \url{https://github.com/christofvermeersch/database}.
+        More information about a specific multivariate polynomial system or rectangular multiparameter eigenvalue problem can be obtained via \function{help \textcolor{string}{problem}} or \function{disp(problem)}.
+        Most problems in the database already contain some information about the number of affine solutions, total number of solutions, required time to solve the problem, etc.
+
+        \subsection{Multivariate polynomial systems}
+
+            The natural way of representing a single polynomial is via a row vector with its coefficients.
+            The coefficients in that row vector are ordered according to a particular monomial ordering.
+            For example, the polynomial $p(x,y,z) = x^2 + 2 y z + 3$ as a row vector corresponds to
+            %
+            \begin{equation}
+                \begin{bmatrix}
+                    1 & 0 & 0 & 0 & 2 & 0 & 0 & 0 & 0 & 3
+                \end{bmatrix},
+            \end{equation}
+            %
+            in the GREVLEX ordering, where the leading term is the first element of the row vector.
+            Of course, this representation contains many zeros when the polynomial is sparse, especially for high degrees and many variables.
+            A more efficient approach to represent a polynomial is by considering a matrix, where the first column corresponds to the coefficients of the polynomial and the remaining columns represent the powers of the variables in the corresponding monomials, i.e.,
+            %
+            \begin{equation}
+                p_i \left( \vc{x} \right) \leftrightarrow
+                \begin{bmatrix}
+                    c_1 & \alpha_{11} & \cdots & \alpha_{1n} \\
+                    c_2 & \alpha_{21} & \cdots & \alpha_{2n} \\
+                    \vdots & \vdots & & \vdots \\
+                    c_N & \alpha_{N1} & \cdots & \alpha_{Nn} \\
+                \end{bmatrix},
+            \end{equation}
+            % 
+            with $c_i$ the coefficients of the polynomial and $\alpha_{ij}$ the power of the variable $x_j$ for that $i$th coefficient.
+            The polynomial $p(x,y,z) = x^2 + 2 y z + 3$ is represented by a matrix with three rows and four columns (three variables and the coefficients):
+            %
+            \begin{equation}
+                \begin{bmatrix}
+                    1 & 2 & 0 & 0 \\
+                    2 & 0 & 1 & 1 \\
+                    3 & 0 & 0 & 0
+                \end{bmatrix}.
+            \end{equation} 
+            %
+            When the monomial ordering is set, it is possible to switch between these two representations
+            %
+            \begin{code}
+                A polynomial in its matrix representation can be expanded into a row vector via \function{expansion(poly)}
+                %
+                \begin{codeblock}
+                    >> P = {[1 2 0 0; 2 0 1 1; 3 0 0 0]}; \\
+                    >> p = expansion(P) \\ \phantom{-} \\
+                    p = \\
+                    \tab 1 \tab 0 \tab 0 \tab 0 \tab 2 \tab 0 \tab 0 \tab 0 \tab 0 \tab 3 \\
+                \end{codeblock}
+                %
+                \noindent The function \function{contraction(p,d,n)} goes in the other direction:
+                %
+                \begin{codeblock}
+                    >> contraction(p,2,3) \\ \phantom{-} \\
+                    ans = \\
+                    \tab 1 \tab 2 \tab 0 \tab 0 \\
+                    \tab 2 \tab 0 \tab 1 \tab 1 \\
+                    \tab 3 \tab 0 \tab 0 \tab 0
+                \end{codeblock}
+            \end{code}
+            
+            A system of (multivariate) polynomials is represented internally by two cell arrays \function{coef} and \function{supp}. 
+            However, you do not need to worry about this internal representation.
+            Via a cell array and the \function{systemstruct} constructor, multiple polynomials can be combined into that problem representation.
+            %
+            \begin{code}
+                By combining different polynomials in \function{systemstruct}, a system can be constructed in \maclab.
+                %
+                \begin{codeblock}
+                    >> p1 = {[2 2 0 0; -3 0 1 3; 1 0 0 0]}; \\
+                    >> p2 = {[1 2 0 0; 1 0 2 0; 1 0 0 2; 16 0 0 0]}; \\
+                    >> p3 = {[1 1 1 1; 2 0 0 0]}; \\
+                    >> eqs = \string{p1, p2, p3\string}; \\
+                    >> system = systemstruct(eqs);
+                \end{codeblock}
+            \end{code}
+            
+            The \function{systemstruct} constructor can also work with symbolic polynomials.
+            %
+            \begin{code}
+                When a multivariate polynomial system is defined via symbolic polynomials, the \function{systemstruct} can still be used to create a problem in \maclab.
+                \begin{codeblock}
+                    >> syms \textcolor{string}{x y}; \\
+                    >> p1 = 2*x\^{}2 + 3*x*y; \\
+                    >> p2 = x\^{}2*y\^{}3 - 1; \\
+                    >> symboliceqs = \string{p1, p2\string}; \\
+                    >> system = systemstruct(symboliceqs);
+                \end{codeblock}
+            \end{code}
+
+            Suppose that you want to keep the coefficients and support in two separate cell arrays, then you could use a column vector with the coefficients and a matrix with the support per polynomial.
+            You could avoid using the \function{systemstruct} constructor and submit the system directly using the internal representation of the toolbox.
+            The cell array \function{coef} contains per equation a cell with a column vector of the coefficients, while each cell of \function{supp} has a matrix with the corresponding support for these coefficients.
+            %
+            \begin{code}
+                A system can also be constructed directly by giving the internal representation to \function{problemstruct}.
+                %
+                \begin{codeblock}
+                    >> coef1 = {[2; -3; 1]}; \\
+                    >> supp1 = {[2 0 0; 0 1 3; 0 0 0]}; \\
+                    >> coef2 = {[1; 1; 1; 16]}; \\
+                    >> supp2 = {[2 0 0; 0 2 0; 0 0 2; 0 0 0]}; \\
+                    >> coef3 = {[1; 2]}; \\
+                    >> supp3 = {[1 1 1; 0 0 0]};\\
+                    >> coef = \string{coef1, coef2, coef3\string}; \\
+                    >> supp = \string{supp1, supp2, supp3\string}; \\
+                    >> system = problemstruct(coef,supp);
+                \end{codeblock}
+            \end{code}
+
+            In order to create a random dense system, \function{randsystem(s,dmax,n)} can be used, which generates a system of \function{s} multivariate polynomials in \function{n} variables that has random coefficients for every monomial up to total degree \function{dmax}. 
+            Via additional arguments, it is possible to choose a specific support or complex coefficients.
+
+        \subsection{Rectangular multiparameter eigenvalue problems}
+
+            Similarly, a rectangular multiparameter eigenvalue problem can be represented by a cell array that contains all the coefficient matrices and a matrix that describes the monomial that belongs to each coefficient matrix.
+            For example, the linear two-parameter eigenvalue problem $\calmat{M} \left( \vc{\lambda} \right) \vc{z} = \left( A_{00} + A_{10} \lambda_1 + A_{01} \lambda_2 \right) \vc{z} = \vc{0}$ has three coefficient matrices.
+            This cell array and the support are then given to the \function{mepstruct} constructor.
+            %
+            \begin{code}
+                Contrary to \function{systemstruct}, \function{mepstruct} requires information about the support of the coefficient matrices.
+                %
+                \begin{codeblock}
+                    >> A00 = randn(4,3); A10 = randn(4,3); A01 = randn(4,3); \\
+                    >> mat = \string{A00, A10, A01\string}; \\
+                    >> supp = {[0 0; 1 0; 0 1]}; \\
+                    >> mep = mepstruct(mat,supp);
+                \end{codeblock}
+            \end{code}
+            %
+            Again, you could decide to enter the problem directly in its internal representation. 
+            A single rectangular multiparameter eigenvalue problem consists of one cell in \function{coef} and one cell in \function{supp}.
+            The cell in \function{coef} is a three-dimensional array where the coefficient matrices are stacked along the first dimension, while the cell in \function{supp} contains a two-dimensional array with the support (each row corresponds to the monomials that belong to that coefficient matrix).
+            %
+            \begin{code}
+                A multiparameter eigenvalue problem can also be constructed directly by giving the internal representation to \function{problemstruct}.
+                %
+                \begin{codeblock}
+                    >> coef = \string{tensorization(mat)\string}; \\
+                    >> supp = \string{{[}0 0; 1 0; 0 1{]}\string}; \\
+                    >> multiparameter eigenvalue problem = problemstruct(coef,supp);
+                \end{codeblock}
+                % 
+                \noindent The function \function{tensorization} put the coefficient matrix into the correct tensor format.
+            \end{code}
+            
+            Quickly constructing a rectangular multiparameter eigenvalue problem with random coefficient matrices is also very easy with \function{randmep(dmax,n,k,l)}, where \function{dmax} is the maximum total degree, \function{n} is the number of eigenvalues, \function{k} is the number of rows, and \function{l} is the number of columns of the problem.
+            This function also allows arguments to choose a support or complex values.
+        
+        \subsection{Information about a problem}
+
+            After defining a system, it is possible to retrieve information about a problem via the overloaded \function{disp} or the more elaborated \function{info}. 
+            More specific information can be retrieven via \function{properties} or directly via dot indexing, while \function{structure} displays the structure of the problem.
+            %
+            \begin{code}
+                You can get more information about a problem via \function{disp}:
+                %
+                \begin{codeblock}
+                    >> disp(problem) \\ \phantom{-} \\
+                    \tab 2-parameter eigenvalue problem with total degree 4 
+                \end{codeblock}
+                %
+                \noindent The specific information can be accessed via \function{properties} or dot indexing:
+                %
+                \begin{codeblock}
+                    >> {[s,dmax,n,di,nnze,k,l]} = properties(problem); \\
+                    >> s = problem.s;
+                \end{codeblock}
+                %
+                \noindent If you want to have a quick view of the structure, then you can use \function{structure} or the more elaborated \function{info}.
+                %
+                \begin{codeblock}
+                    >> info(problem) \\ \phantom{-} \\
+                    \tab 2-parameter eigenvalue problem with total degree 4 \\ \phantom{-} \\
+                    \tab \tab (A00 + A10 $\lambda$1 + A13 $\lambda$1 $\lambda$2\^{}3 ) z = 0 \\ \phantom{-} \\
+                    \tab coefficient matrices are 4 x 3 matrices \\
+                    \tab sparsity factor is 0.20 
+                \end{codeblock}
+            \end{code}
+
+    \section{Solutions via the (block) Macaulay matrix}
+        \label{sec:manual:solutions}
+
+        \maclab\space uses a similar approach to solve both problem types. 
+        Many of the functions are, therefore, re-used when solving the different problems. 
+        We give a step-by-step solution approach (\cref{sec:manual:stepbystep}), but the user is more likely to use the direct solution approach (\cref{sec:manual:standard}). 
+
+        \subsection{Step-by-step solution approach}
+            \label{sec:manual:stepbystep}
+
+            Building the (block) Macaulay matrix generated by the problem is probably the first step you take after defining the problem.
+            Since both problems are represented internally by the same data structure, the same function can be used to build the Macaulay matrix for a multivariate polynomial system or block Macaulay matrix for a rectangular multiparameter eigenvalue probelm.
+            The function \function{macaulay(problem,d)} builds the (block) Macaulay matrix of degree \function{d} that incorporates the \problem{problem}.
+            
+            \begin{code}
+                A Macaulay matrix of degree $d$ can easily be constructed via \function{macaulay(system,d)}. 
+                %
+                \begin{codeblock}
+                    >> M = macaulay(redeco6,10);
+                \end{codeblock}
+                %
+                \noindent With the same function, a block Macaulay matrix of degree $d$ can be constructed: \function{macaulay(mep,d)}.
+                %
+                \begin{codeblock} 
+                    >> N = macaulay(hkp2,5);
+                \end{codeblock}
+            \end{code}
+
+            The default (block) Macaulay matrix solution approach in this toolbox uses a basis matrix of the right null space the (block) Macaulay matrix.
+            This matrix can be computed directly via the standard approach \function{null}, via the recursive approach \function{macaulayupdate} and \function{nullrecrmacualay}, or via the sparse approach \function{nullsparsemacaulay}.
+            %
+            \begin{code}
+                The standard approach to compute a basis matrix of the right null space is via \function{null(Z)}:
+                %
+                \begin{codeblock}
+                    >> M = macaulay(system,5); \\
+                    >> Z = null(M);
+                \end{codeblock}
+                %
+                \noindent Alternatively, the basis matrix can also be built recursively via \function{macaulayupdate(M,problem,d)} and \function{nullrecrmacaulay(Z,Y)}, where \function{Y} is the difference between the two (block) Macaulay matrices:
+                %
+                \begin{codeblock}
+                    >> M = macaulay(system,2); \\
+                    >> Z = null(M); \\
+                    >> \textcolor{blue}{for} d = 3:5 \\
+                    \tabfor \tab rows = size(M,1); \\
+                    \tabfor \tab M = macaulayupdate(M,system,d); \\
+                    \tabfor \tab Z = nullrecrmacaulay(Z,M(rows+1:end,:)); \\
+                    \tabfor \textcolor{blue}{end}
+                \end{codeblock}
+                %
+                \noindent It is also possible to use \function{nullsparsemacaulay(Z,problem,d)}, which avoids the construction of the (block) Macaulay matrix:
+                %
+                \begin{codeblock}
+                    >> M = macaulay(system,2); \\
+                    >> Z = null(M); \\
+                    >> \textcolor{blue}{for} d = 3:5 \\
+                    \tabfor \tab Z = nullsparsemacaulay(Z,system,d); \\
+                    \tabfor \textcolor{blue}{end}
+                \end{codeblock}
+            \end{code}
+            %
+            Instead of performing these iterations by hand, you can call \function{nullitermacaulay} directly.
+
+            Once you have a basis matrix of the right null space, you want to look for the standard monomials and determine the gap zone. 
+            Of course, you can also determine the gap directly via \function{gap}.
+            %
+            \begin{code}
+                To determine the standard monomials and the degree of the gap zone:
+                %
+                \begin{codeblock}
+                    >> c = stdmonomials(Z); \\ 
+                    >> {[dgap, ma]} = gapstdmonomials(c,d,n);
+                \end{codeblock}
+                %
+                \noindent Or, directly, via \function{gap} (which also gives the number of affine solutions):
+                \begin{codeblock}
+                    >> {[dgap, ma]} = gap(Z,n);
+                \end{codeblock}
+            \end{code}
+            %
+            With this information, the column compression to remove the solutions at infinity is quite straightforward:
+            %
+            \begin{code}
+                You can perform a column compression via:
+                %
+                \begin{codeblock}
+                    >> W11 = columncompr(Z,dgap,n);
+                \end{codeblock}
+            \end{code}
+
+            Solving the problem can be done via performing shifts in the right null space and finding the eigenvalues of (generalized) multiplication maps. 
+            \function{multmapnull} constructs the (generalized) multiplication maps from the right null space that yield the solutions of the problem.
+            %
+            \begin{code}
+                The function \function{multmapnull(Z,K,G,idx)} considers the shift problems defined in \function{G} and uses these shifts in the right null space \function{Z} to set up the (generalized) multiplication maps.
+                \function{idx} contains the indices of the rows that are shifted.
+                For example,
+                %
+                \begin{codeblock}
+                    >> {[A,B]} = multmapnull(Z,K,[2 1 2],[1 2 3]);
+                \end{codeblock}
+                %
+                \noindent returns two matrices \function{A} and \function{B} that are constructed by shifting the first three rows inside the right null space \function{Z} by the polynomial $2 x_1 x_2^2$. 
+                The matrix \function{K} describes with which monomials the rows of \function{Z} correspond. 
+                Consequently,
+                %
+                \begin{codeblock}
+                    >> values = eig(A,B);
+                \end{codeblock}
+                %
+                \noindent gives the evaluations of this polynomial in the solutions contained in the right null space.
+            \end{code}
+
+        \subsection{Direct solution approach}
+            \label{sec:manual:standard}
+
+            Of course, there is a solver implemented that takes care of all these intermediate steps and checks whether the right null space of the (block) Macaulay matrix can accommodate the shift polynomial.
+            Furthermore, it is also possible to consider the column space instead of the right null space of the (block) Macaulay matrix.
+            You can use \function{macaulaylab(problem)} to solve a problem via the default approach (which is currently a block-wise sparse null space based approach). 
+            %
+            \begin{code}
+                Two examples of using \function{macaulaylab{problem}}:
+                \begin{codeblock}
+                    >> commonroots = macaulaylab(redeco6); \\
+                    >> eigenvalues = macaulaylab(hkp2);
+                \end{codeblock}
+            \end{code}
+            %
+            To avoid unpleasant surprises, it is recommended to set a maximum degree for the (block) Macaulay matrix.
+            By default, the maximum degree is set to $100$.
+            %
+            \begin{code}
+                By using \function{macaulaylab(problem,dend)}, the maximum degree of the (block) Macaulay matrix is set to \function{dend = 20}.
+                %
+                \begin{codeblock}
+                    >> roots = macaulaylab(redeco6,20);
+                \end{codeblock}
+            \end{code}
+            %
+            The solver has many options and outputs a lot of information.
+            \cref{tab:manual:options} contains an overview of the different options, but the default options should result in an acceptable trade-off between computation speed and numerical stability.
+            The options can be set via supplementing key-value pairs. 
+            For example, asking the solver for a iterative enlargement of the (block) Macaulay matrix can be achieved by using the argument \function{enlarge = \textcolor{string}{"iterative"}}.
+            %
+            \begin{code}
+                If you want to combine the key-value pairs with a maximum degree for the (block) Macaulay matrix, then \function{dend} has to be given before the key-value pairs.
+                %
+                \begin{codeblock}
+                    >> dend = 20; \\
+                    >> solutions = macaulaylab(problem,dend,enlarge=\textcolor{string}{"iterative"});
+                \end{codeblock}
+            \end{code}
+
+            The solution and output details are given in two structures, namely a \function{solutionstruct} and \function{outputstruct}, respectively.
+            If you want to use the numerical values of the solutions, you can access them easily via \function{num(solutions)}.
+            %
+            \begin{code}
+                You access the numerical values inside a \function{solutionstruct} via \function{num}:
+                \begin{codeblock}
+                    >> values = num(solutions) \\ \phantom{-} \\
+                    values = \\ \phantom{-} \\
+                    \tab 2.2876 + 0.0000i \tabdash 14.0549 + 0.0000i \\
+                    \tab 2.7729 + 4.1445i \tab 1.5091 - 1.9992i \\
+                    \tab 2.7729 - 4.1445i \tab 1.5091 + 1.9992i \\
+                    \tab 1.0350 - 0.8553i \tabdash  -3.1730 - 1.5772i \\
+                    \tab 1.0350 + 0.8553i \tabdash  -3.1730 + 1.5772i \\
+                    \tab 0.5146 + 0.0000i \tab 0.2825 + 0.0000i 
+                \end{codeblock}
+            \end{code} 
+
+            \begin{table}
+                \centering
+                \caption{Overview of the different options that can be used by the \maclab\space solver. \Cref{sec:manual:monomialordering-polynomialbasis} gives more information about the options to set the monomial ordering and polynomial basis. For the full list of available options and possible inputs, which change when other techniques become available, we recommend to consult the documentation of \function{macaulaylab}. (The variables $c_i$ are random coefficients.)}
+                \label{tab:manual:options}
+                \begin{tabular}{cccc}
+                    \toprule 
+                    \textbf{option} & \textbf{type} & \textbf{default} \\ 
+                    \midrule
+                    \texttt{tol} & \texttt{double} & $\num{1e-10}$ \\
+                    \texttt{clustertol} & \texttt{double} & $\num{1e-10}$ \\
+                    \texttt{polynomial} & \texttt{double} & $\sum_{i = 1}^n c_i x_i$ \\
+                    \texttt{basis} & \texttt{function\_handle} & \texttt{@monomial} \\
+                    \texttt{order} & \texttt{function\_handle} & \texttt{@grevlex} \\
+                    \texttt{subspace} & \texttt{string} & \texttt{\textcolor{string}{"null space"}} \\
+                    \texttt{blocks} & \texttt{string} & \texttt{\textcolor{string}{"block-wise"}} \\
+                    \texttt{enlarge} & \texttt{string} & \texttt{\textcolor{string}{"sparse"}} \\
+                    \texttt{check} & \texttt{string} & \texttt{\textcolor{string}{"iterative"}} \\
+                    \texttt{clustering} & \texttt{logical} & \texttt{true} \\
+                    \texttt{posdim} & \texttt{logical} & \texttt{false} \\
+                    \texttt{verbose} & \texttt{logical} & \texttt{false} \\
+                    \bottomrule
+                \end{tabular}
+            \end{table}
+
+    \section{Monomial order and polynomial basis}
+        \label{sec:manual:monomialordering-polynomialbasis}
+
+        \maclab\space is implemented independently from the monomial order and polynomial basis, which means that you can supply a certain monomial order or polynomial basis and use all the functions without any adaptations. 
+        Choosing a certain monomial order is done by giving a function that determines the position of a monomial to the solver, e.g., \function{grevlex} and \function{grnlex}.
+        The definition of a basis requires the user to supply a function that implements a definition of the basis, which consists of describing how the product of two monomials in that basis look like and gives the parameters of the three-term recursion definition.
+        These functions are given to \maclab\space as function handles.
+        %
+        \begin{code}
+            It is possible to construct the Macaulay matrix in any polynomial basis or monomial order. 
+            \function{basis} and \function{order} should be two functions that implement the basis multiplication and the position of a monomial in the monomial ordering.
+            %
+            \begin{codeblock}
+                >> basis = @chebyshev; \textcolor{comment}{\% Chebyshev monomial basis} \\
+                >> order = @grnlex; \textcolor{comment}{\% grnlex monomial order}\\
+                >> M = macaulay(problem,d,basis,order);
+            \end{codeblock}
+        \end{code}
+        %
+        The toolbox has some pre-implemented functions for the monomial order and polynomial basis:
+        %
+        \begin{itemize}
+            \item Monomial order: \function{grevlex}, \function{grnlex}, \function{grlex}, and \function{grvlex}.
+            \item Polynomial basis: \function{monomial}, \function{chebyshev}, and \function{legendre}.
+        \end{itemize}
+
+    \section{Overview of all functions in the toolbox}
+        \label{sec:manual:otherfunctions}
+
+        When working with multivariate polynomial systems and rectangular multiparameter eigenvalue problems, some other functions might come in handy.
+        The list below gives an overview of all functions included in the toolbox.
+
+        \paragraph*{Toolbox}
+        %
+        \begin{itemize}
+            \item \function{macaulaylab} - Numerical solver that uses the Macaulay matrix.
+            \item \function{gettingstarted} - is a live script.
+        \end{itemize}
+
+        \paragraph*{Toolbox/Basis}
+        %
+        \begin{itemize}
+            \item \function{chebyshev} - Multivariate product Chebyshev basis.
+            \item \function{legendre} - Multivariate product Legendre basis.
+            \item \function{monomial} - Standard multivariate monomial basis.
+        \end{itemize}
+
+        \paragraph*{Toolbox/Order}
+        %
+        \begin{itemize}
+            \item \function{grevlex} - Graded reverse lexicographic monomial order.
+            \item \function{grlex} - Graded lexicographic monomial order.
+            \item \function{grnlex} - Graded negative lexicographic monomial order.
+            \item \function{grvlex} - Graded inverse lexicographic monomial order.
+        \end{itemize}
+
+        \paragraph*{Toolbox/Structures}
+        %
+        \begin{itemize}
+            \item \function{problemstruct} - Class for generic problems.
+            \item \function{mepstruct} - Class for multiparameter eigenvalue problems.
+            \item \function{systemstruct} - Class for multivariate polynomial systems.
+            \item \function{outputstruct} - Class for gathering all the output details.
+            \item \function{solutionstruct} - Class for gathering all the solution data.
+        \end{itemize}
+
+        \paragraph*{Toolbox/Internal} \phantom{-}\\
+        %
+        \noindent Different implemented solution bounds
+        \begin{itemize}
+            \item \function{bezout} - Bézout number for a multivariate polynomial system.
+            \item \function{bkk} - Solution bound for a multivariate polynomial system.
+            \item \function{hkp} - Solution bound for a multiparameter eigenvalue problem.
+            \item \function{kushnirenko} - Solution bound for a multivariate polynomial system.
+            \item \function{shapiro} - Solution bound for a multiparameter eigenvalue problem.
+        \end{itemize}
+        %
+        \noindent Function to check, manipulate, and generate problems
+        %
+        \begin{itemize}
+            \item \function{sparsity} - Sparsity factor of a problem.
+            \item \function{contraction} - Matrix representation of a polynomial.
+            \item \function{conversion} - Multiparameter eigenvalue problem conversion.
+            \item \function{expansion} - Row vector representation of a polynomial.
+            \item \function{tensorization} - Conversion from matrix to tensor representation.
+            \item \function{randmep} - Dense multiparameter eigenvalue problem.
+            \item \function{randsystem} - Dense system with random coefficients.
+        \end{itemize}
+        %
+        \noindent Everything related to constructing special matrices
+        \begin{itemize}
+            \item \function{companion} - Construction of the Companion matrix.
+            \item \function{vandermonde} - Multivariate (block) Vandermonde matrix.
+            \item \function{rowrecomb} - Row combination matrix.
+            \item \function{rowshift} - Matrix of shifts.
+            \item \function{macaulay} - Construction of the (block) Macaulay matrix.
+            \item \function{macaulayupdate} - Update of the (block) Macaulay matrix.
+            \item \function{nullitermacaulay} - Iterative null space basis matrix computation.
+            \item \function{nullrecrmacaulay} - Recursive null space update of a Macaulay matrix.
+            \item \function{nullrecrrow} - Recursive null space update of a (block) row matrix.
+            \item \function{nullsparsemacaulay} - Sparse null space update of a Macaulay matrix.
+        \end{itemize}
+        % 
+        \noindent Functions necessary to solve the problems
+        \begin{itemize}
+            \item \function{columncompr} - Column compression.
+            \item \function{gap} - Gap zone of the basis matrix.
+            \item \function{gapstdmonomials} - Gap zone via the standard monomials.
+            \item \function{multmapcolumn} - Generalized multiplication matrices (column space).
+            \item \function{multmapnull} - Generalized multiplication matrices (right null space).
+            \item \function{multiplicity} - Clustered multiple solutions.
+            \item \function{value} - Evaluation of the (matrix) equation(s) in a certain point.
+            \item \function{residuals} - Solution residuals for a problem.
+        \end{itemize}
+        %
+        \noindent Other functions
+        \begin{itemize}
+            \item \function{shift} - Result of shifting two monomials.
+            \item \function{position} - Position of monomial.
+            \item \function{monomials} - Matrix with all the monomial vectors.
+            \item \function{stdmonomials} - Standard monomials.
+            \item \function{nbmonomials} - Number of monomials.  
+        \end{itemize}
+\end{document}

@@ -1,0 +1,32 @@
+\begin{tikzpicture}
+    \draw[line width = \defaultthickness, pattern = north west lines, pattern color=gray, rounded corners] (-0.2\cu,-2.2\cu) rectangle (9.2\cu,1.2\cu);
+    \node[text width = 4\cu, align = center, anchor = south] at (2\cu,1.5\cu) {system of multivariate polynomial equations \texttt{eqs}};
+    \node[text width = 4\cu, align = center, anchor = south] at (7\cu,1.5\cu) {\texttt{n}-parameter eigenvalue problem with coefficient matrices \texttt{mat} and total degree \texttt{dmax}};
+
+    \draw[->, thick] (2\cu,1.5\cu) -- (2\cu,\cu);
+    \draw[->, thick] (7\cu,1.5\cu) -- (7\cu,\cu);
+
+    \draw[line width = \defaultthickness, fill = white, rounded corners] (0,0) rectangle (4\cu,\cu);
+    \draw[line width = \defaultthickness, fill = white, rounded corners] (5\cu,0) rectangle (9\cu,\cu);
+    \node at (2\cu,0.5\cu) {\texttt{systemstruct(eqs)}};
+    \node[anchor = south, font = {\scriptsize}, yshift = -2pt] at (2\cu,0) {inherits from \texttt{problemstruct}};
+    \node[anchor = south, font = {\scriptsize}, yshift = -2pt] at (7\cu,0) {inherits from \texttt{problemstruct}};
+    \node at (7\cu,0.5\cu) {\texttt{mepstruct(mat,dmax,n)}};
+    
+
+    \draw[line width = \defaultthickness, fill = white, rounded corners] (2.5\cu,-2\cu) rectangle (6.5\cu,-1\cu);
+    \node at (4.5\cu,-1.5\cu) {\texttt{problemstruct(coef,supp)}};
+
+    \draw[->, line width = \defaultthickness, dashed] (2\cu,0) -- (2\cu,-0.5\cu) -- (4.4\cu,-0.5\cu) -- (4.4\cu,-1\cu);
+
+    \node[anchor = south] at (3.2\cu,-0.5\cu) {\texttt{system}};
+    \node[anchor = south] at (5.8\cu,-0.5\cu) {\texttt{mep}};
+
+    \draw[->, line width = \defaultthickness, dashed] (7\cu,0) -- (7\cu,-0.5\cu) -- (4.6\cu,-0.5\cu) -- (4.6\cu,-1\cu);
+
+    \node[anchor = north, align = left] at (7.5\cu,-2.5\cu) {internal representation};
+    \draw[->, line width = \defaultthickness] (7.5\cu,-2.5\cu) -- (7.5\cu,-1.5\cu) -- (6.5\cu,-1.5\cu);
+
+    \draw[->, line width = \defaultthickness] (4.5\cu,-2\cu) -- (4.5\cu,-2.5\cu);
+    \node[anchor = north] at (4.5\cu,-2.5\cu) {\texttt{problem}};
+\end{tikzpicture}
