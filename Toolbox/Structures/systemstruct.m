@@ -46,6 +46,7 @@ classdef systemstruct < problemstruct
 
             % Convert symbolic expressions into numerical polyonomials:
             s = numel(eqs);
+            variables = NaN;
             if isa(eqs,"sym") || isa(eqs{1},"sym")
                 if isa(eqs,"cell")
                     eqs = cell2sym(eqs);
