@@ -53,5 +53,5 @@ function mep = conversion(system,eigenvectorIdx)
     end
 
     % Create the mepstruct:
-    mep = mepstruct(mepmat,dmep,length(paramIdx));
+    mep = mepstruct(mepmat,paramMonomials);
 end
