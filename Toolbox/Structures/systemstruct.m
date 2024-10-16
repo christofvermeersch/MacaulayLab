@@ -9,6 +9,7 @@ classdef systemstruct < problemstruct
     %
     %   SYSTEMSTRUCT properties:
     %       eqs - polynomial equations.
+    %       map - mapping of symbolic variables to indices of variables.
     %       ... - properties defined in problemstruct.
     %
     %   SYSTEMSTRUCT methods:
@@ -25,6 +26,7 @@ classdef systemstruct < problemstruct
 
     properties
         eqs
+        map
     end
 
     methods
@@ -77,6 +79,7 @@ classdef systemstruct < problemstruct
             end
             obj@problemstruct(coef,supp,basis)
             obj.eqs = eqs;
+            obj.map = variables;
         end 
     end
 end
