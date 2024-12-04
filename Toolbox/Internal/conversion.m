@@ -21,11 +21,11 @@ function mep = conversion(system,eigenvectorIdx)
     paramIdx = setdiff(allIdx,eigenvectorIdx);
 
     % Compute the degree of the multiparameter eigenvalue problem:
-    for i = system.s
+    dmep = 0;
+    for i = 1:system.s
         M = system.eqs{i};
-        mepdi = max(sum(M(:,paramIdx+1),2));
+        dmep = max(dmep,max(sum(M(:,paramIdx+1),2)));
     end
-    dmep = max(mepdi);
 
     % Create matrices with monomials:
     paramMonomials = monomials(dmep,length(paramIdx));
