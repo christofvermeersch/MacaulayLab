@@ -1,13 +1,10 @@
-function [P,aff,hit,rem] = rowrecomb(d,n,rows,shift,varargin)
+function P = rowrecomb(d,n,idx,poly,varargin)
     %ROWRECOMB   Row combination matrix.
-    %   P = ROWRECOMB(d,n,rows,shift) creates a sparse recombination matrix 
-    %   for a problem in which given rows are shifted by a certain shift
-    %   polynomial.
+    %   P = ROWRECOMB(d,n,idx,shift) creates a sparse recombination matrix 
+    %   for a problem in which rows given by the indices are shifted by a 
+    %   certain shift polynomial.
     %
-    %   [...,aff,hit,rem] = ROWRECOMB(...) also returns the size of the
-    %   three individual groups of indices in the recombination matrix.
-    %
-    %   P = ROWRECOMB(...,blocksize) considers the block version instead.
+    %   P = ROWRECOMB(...,l) considers problems with l-by-1 eigenvectors.
     %
     %   P = ROWRECOMB(...,basis) performs the shift in a user-specified
     %   monomial basis.
@@ -20,7 +17,7 @@ function [P,aff,hit,rem] = rowrecomb(d,n,rows,shift,varargin)
     % Copyright (c) 2024 - Christof Vermeersch
 
     % Process the optional arguments:
-    blocksize = 1;
+    l = 1;
     basis = @monomial;
     order = @grevlex;
     for i = 1:nargin-4
@@ -32,32 +29,32 @@ function [P,aff,hit,rem] = rowrecomb(d,n,rows,shift,varargin)
                     basis = varargin{i};
                 end
             case "double"
-                blocksize = varargin{i};
+                l = varargin{i};
             otherwise 
                 error("Argument type is not recognized.")
         end
     end
 
     % Create empty recombination matrix:
-    p = nbmonomials(d,n)*blocksize;
+    p = nbmonomials(d,n)*l;
     P = zeros(p,p);
 
     % Create B matrix:
-    P(1:length(rows),rows) = eye(length(rows));
-    rep = rows;
+    P(1:length(idx),idx) = eye(length(idx));
+    rep = idx;
 
-    Sg = rowshift(d,n,rows,shift,blocksize,order,basis);
+    Sg = rowshift(d,n,idx,poly,l,order,basis);
     B2 = [];
-    for k = 1:length(rows)
+    for k = 1:length(idx)
         Sghere = Sg(k,:);
-        Sghere(rows) = 0;
+        Sghere(idx) = 0;
         if any(Sghere)
             B2 = [B2 k];
         end
     end
 
     % Create C matrix:
-    P(length(rows)+1:length(rows)+length(B2),:) = Sg(B2,:);
+    P(length(idx)+1:length(idx)+length(B2),:) = Sg(B2,:);
     for k = 1:length(B2)
         rowsinsg = find(Sg(B2(k),:));
         for l = 1:length(rowsinsg)
@@ -70,12 +67,11 @@ function [P,aff,hit,rem] = rowrecomb(d,n,rows,shift,varargin)
     notrep = setdiff(1:p,rep);
 
     % Create D matrix:
-    P(length(rows)+length(B2)+1:end,notrep) = eye(length(notrep));  
+    P(length(idx)+length(B2)+1:end,notrep) = eye(length(notrep));  
     P = sparse(P);
     
     % Output additional information:
-    aff = length(rows);
+    aff = length(idx);
     hit = length(B2);
     rem = p-aff-hit;
 end
-
