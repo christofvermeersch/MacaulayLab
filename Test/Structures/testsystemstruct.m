@@ -12,5 +12,13 @@ classdef testsystemstruct < matlab.unittest.TestCase
             testCase.verifyEqual(system.supp,{[5 0; 2 2];[4 2; 1 1]});
             testCase.verifyEqual(system.basis,"unknown");
         end
+
+        function symbolictest(testCase)
+            error("Test is not yet implemented.")
+        end
+
+        function maptest(testCase)
+            error("Test is not yet implemented.")
+        end
     end
 end
