@@ -36,6 +36,7 @@ classdef problemstruct
     %       disp       - displays a short description.
     %       info       - gives a more elaborate description.
     %       structure  - visualizes the problem structure (support).
+    %       coefmat    - creates the coefficient matrices.
     %
     %   See also SYSTEMSTRUCT, MEPSTRUCT.
 
@@ -227,6 +228,23 @@ classdef problemstruct
                 output = text;
             else
                 fprintf(text);
+            end
+        end
+
+        function mat = coefmat(obj)
+            %COEFMAT   Coefficient matrices of the matrix equation.
+            %   mat = COEFMAT(problem) creates the coefficient matrices
+            %   from the coefficient tensor (only works for single matrix
+            %   equations).
+
+            if obj.s > 1
+                error("Method only works for single matrix equations.")
+            end
+            nMat = size(obj.supp{1},1);
+            mat = cell(nMat,1);
+            tens = obj.coef{1};
+            for i = 1:nMat
+                mat{i} = squeeze(tens(i,:,:));
             end
         end
     end
