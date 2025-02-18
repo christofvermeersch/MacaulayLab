@@ -39,12 +39,7 @@ classdef mepstruct < problemstruct
             end
 
             % Create a problemstruct:
-            s = numel(mat);
-            [nrows,ncols] = size(mat{1});
-            coef = zeros(s,nrows,ncols);
-            for k = 1:s
-                coef(k,:,:) = mat{k};
-            end
+            coef = tensorization(mat);
             obj@problemstruct({coef},{supp},basis)
             obj.mat = mat;
         end
