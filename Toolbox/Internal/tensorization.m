@@ -3,7 +3,7 @@ function tensor = tensorization(mat)
     %   tensor = TENSORIZATION(coef) creates a tensor of coefficient
     %   matrices from the cell array with coefficient matrices.
     % 
-    %   See also MEPSTRUCT, SYSTEMSTRUCT, PROBLEMSTRUCT.
+    %   See also MEPSTRUCT, PROBLEMSTRUCT.
 
     % Copyright (c) 2024 - Christof Vermeersch
 
