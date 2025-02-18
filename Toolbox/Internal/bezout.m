@@ -8,7 +8,7 @@ function m = bezout(system)
     % Copyright (c) 2024 - Christof Vermeersch
 
     % Verify input requirements:
-    if ~isa(system,"systemstruct")
+    if ~isa(system,"systemstruct") && ~isa(system,"problemstruct")
         error("Only systemstruct is allowed as input.");
     end
     
