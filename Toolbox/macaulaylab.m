@@ -52,7 +52,7 @@ function [solutions,details] = macaulaylab(problem,dend,options)
         problem problemstruct
         dend double = 100
         options.tol double = 1e-10;
-        options.clustertol double = 1e-10;
+        options.clustertol double = 1e-3;
         options.polynomial double = [randn(problem.n,1) eye(problem.n)];
         options.basis function_handle = @monomial;
         options.order function_handle = @grevlex;
@@ -191,7 +191,7 @@ function [solutions,details] = macaulaylab(problem,dend,options)
     % Perform a column compression (only for null space based approach):
     if isNull 
         tic
-        Z = columncompr(Z,dgap + dpolynomial - 1,n,ma,blocksize);
+        Z = columncompr(Z,dgap + dpolynomial - 1,n,blocksize);
         time(3) = toc;
     end
 
@@ -218,6 +218,7 @@ function [solutions,details] = macaulaylab(problem,dend,options)
     [Q,S] = schur(pinv(full(A{1}))*full(B{1}),"complex");
     shiftvalues = diag(S);
     values = zeros(ma,n);
+
     for i = 1:n
         S = Q'*pinv(A{i+1})*B{i+1}*Q;
         values(:,i) = diag(S);
@@ -225,7 +226,7 @@ function [solutions,details] = macaulaylab(problem,dend,options)
     time(4) = toc;
 
     % Perform the optional clustering.
-    if options.clustering && ma > 0
+    if options.clustering && ma > 1
         tic
         [clusteredvalues,labels] = multiplicity([shiftvalues values], ...
             options.clustertol);
@@ -245,7 +246,7 @@ function [solutions,details] = macaulaylab(problem,dend,options)
 
     % Store the solutions and output information:
     details = outputstruct(time,nullity,shiftvalues);
-    if options.clustering
+    if options.clustering && ma > 1
         details.multiplicity = isMultiplicity;
     end
     solutions = solutionstruct(values);
