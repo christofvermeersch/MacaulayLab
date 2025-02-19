@@ -5,7 +5,7 @@ function m = bezout(system)
     %
     %   See also KUSHNIRENKO, BKK.
     
-    % Copyright (c) 2024 - Christof Vermeersch
+    % Copyright (c) 2025 - Christof Vermeersch
 
     % Verify input requirements:
     if ~isa(system,"systemstruct") && ~isa(system,"problemstruct")

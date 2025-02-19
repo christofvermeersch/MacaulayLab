@@ -5,7 +5,7 @@ function tensor = tensorization(mat)
     % 
     %   See also MEPSTRUCT, PROBLEMSTRUCT.
 
-    % Copyright (c) 2024 - Christof Vermeersch
+    % Copyright (c) 2025 - Christof Vermeersch
 
     s = numel(mat);
     [nrows,ncols] = size(mat{1});

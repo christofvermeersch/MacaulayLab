@@ -45,7 +45,7 @@ function [solutions,details] = macaulaylab(problem,dend,options)
     %       
     %   See also PROBLEMSTRUCT, SOLUTIONSTRUCT, OUTPUTSTRUCT.
     
-    % Copyright (c) 2024 - Christof Vermeersch
+    % Copyright (c) 2025 - Christof Vermeersch
 
     % Check the input and set the default options:
     arguments
