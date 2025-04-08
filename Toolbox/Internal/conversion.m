@@ -18,7 +18,7 @@ function mep = conversion(system,eigenvectorIdx)
 
     % Divide the variables into parameters and eigenvector elements:
     allIdx = 1:system.n;
-    paramIdx = setdiff(allIdx,eigenvectorIdx);
+    paramIdx = setdiff(allIdx,eigenvectorIdx)
 
     % Compute the degree of the multiparameter eigenvalue problem:
     dmep = 0;
@@ -42,10 +42,12 @@ function mep = conversion(system,eigenvectorIdx)
                 % Check if the coefficient belongs to the matrix:
                 if paramMonomials(i,:) == tmp 
                     % Find correct column of matrix: 
-                    monomial = poly(k,eigenvectorIdx+1);
+                    monomial = poly(k,eigenvectorIdx+1)
                     [~,idx] = ismember(monomial,eigenvectorMonomials, ...
                         "rows");
-                    M(j,idx) = poly(k,1);
+                    if idx > 0
+                        M(j,idx) = poly(k,1);
+                    end
                 end
             end
         end
